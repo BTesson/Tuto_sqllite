@@ -43,13 +43,14 @@ const select = (request, response) => {
 }
 
 const create = (request, response) => {
+    console.log(request.body);
     const db = new sqllite.Database(path_db, (err) => {
         if(err){
             return console.log(err.message);
         }
         console.log("Connexion réussi à la base de données 'apptest.db'");
     });
-    //let book = [request.body.book_title, request.body.book_author, request.body.book_comment];
+    //let book = [request.body.booktitle, request.body.bookauthor, request.body.bookcomment];
     let book = ["Mrs. Bridge", "Evan S. Connell", "Premier de la série"]
     const sql = 'INSERT INTO Books (Title, Author, Comments) Values (?, ?, ?);';
     //sql => requete sql
@@ -69,7 +70,7 @@ const update = (request, response) => {
         }
         console.log("Connexion réussi à la base de données 'apptest.db'");
     });
-    //let book = [request.body.book_title, request.body.book_author, request.body.book_comment, id];
+    let book2 = [request.body.booktitle, request.body.bookauthor, request.body.bookcomment, id];
     let book = ["Test", "Moi", "Réussi", request.params.id];
     const sql = 'UPDATE Books SET Title = ?, Author = ?, Comments = ? WHERE (Book_ID = ?);';
     //sql => requete sql
