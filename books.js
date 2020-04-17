@@ -18,6 +18,7 @@ const selectAll = (response) => {
         //[] => tableau de variable nécéssaires à la requete
         db.all(sql, [], (err, rows) => {
             if(err){
+                response.redirect(200, '/');
                 return console.log(err.message);
             }
             response.send('{"title": "Books", "content": ' + JSON.stringify(rows) + '}');
@@ -36,6 +37,7 @@ const select = (request, response) => {
     //[] => tableau de variable nécéssaires à la requete
     db.get(sql, request.params.id, (err, rows) => {
         if(err){
+            response.redirect(200, '/books');
             return console.log(err.message);
         }
         response.send('{"title": "Books", "content": ' + JSON.stringify(rows) + '}');
@@ -43,23 +45,22 @@ const select = (request, response) => {
 }
 
 const create = (request, response) => {
-    console.log(request.body);
     const db = new sqllite.Database(path_db, (err) => {
         if(err){
             return console.log(err.message);
         }
         console.log("Connexion réussi à la base de données 'apptest.db'");
     });
-    //let book = [request.body.booktitle, request.body.bookauthor, request.body.bookcomment];
-    let book = ["Mrs. Bridge", "Evan S. Connell", "Premier de la série"]
+    let book = [request.body.booktitle, request.body.bookauthor, request.body.bookcomment];
     const sql = 'INSERT INTO Books (Title, Author, Comments) Values (?, ?, ?);';
     //sql => requete sql
     //[] => tableau de variable nécéssaires à la requete
     db.run(sql, book, (err, rows) => {
         if(err){
+            response.redirect(404, '/error');
             return console.log(err.message);
         }
-        response.redirect('/books');
+        response.redirect(200, '/books');
     });
 }
 
@@ -70,8 +71,7 @@ const update = (request, response) => {
         }
         console.log("Connexion réussi à la base de données 'apptest.db'");
     });
-    let book2 = [request.body.booktitle, request.body.bookauthor, request.body.bookcomment, id];
-    let book = ["Test", "Moi", "Réussi", request.params.id];
+    let book = [request.body.booktitle, request.body.bookauthor, request.body.bookcomment, request.params.id];
     const sql = 'UPDATE Books SET Title = ?, Author = ?, Comments = ? WHERE (Book_ID = ?);';
     //sql => requete sql
     //[] => tableau de variable nécéssaires à la requete
@@ -101,7 +101,23 @@ const deletee = (request, response) => {
     });
 }
 
-exports.modules = {
+const transaction = () => {
+    const db = new sqllite.Database(path_db, (err) => {   
+        if(err){
+            return console.log(err.message);
+        }
+        console.log("Connexion réussi à la base de données 'apptest.db'");
+    });
+    db.beginTransaction();
+    try {
+
+      db.setTransactionSuccessful();
+    } finally {
+      db.endTransaction();
+    }
+}
+
+module.exports = {
     select: select,
     selectAll: selectAll,
     create: create,
